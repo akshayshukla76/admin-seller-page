@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grocery Store</title>
+    
+</head>
+<body>
+    
+
+    <div>
+        <label for="productName">Product Name:</label>
+        <input type="text" id="productName">
+    </div>
+
+    <div>
+        <label for="sellingPrice">Selling Price:</label>
+        <input type="number" id="sellingPrice">
+    </div>
+
+    <div>
+        <label for="category">Choose a category:</label>
+        <select id="category">
+            <option value="skinCare">Skin Care</option>
+            <option value="electronic">Electronic</option>
+            <option value="food">Food</option>
+        </select>
+    </div>
+
+    <button onclick="addProduct()">Add Product</button>
+    <button onclick="deleteProduct()">Delete Product</button>
+
+    <h2>Skin Care</h2>
+    <ul id="skinCare"></ul>
+
+    <h2>Electronic</h2>
+    <ul id="electronic"></ul>
+
+    <h2>Food</h2>
+    <ul id="food"></ul>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js" integrity="sha512-PJa3oQSLWRB7wHZ7GQ/g+qyv6r4mbuhmiDb8BjSFZ8NZ2a42oTtAq5n0ucWAwcQDlikAtkub+tPVCw4np27WCg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        var apiEndpoint = 'https://crudcrud.com/api/e3afe422a9574e0fab1a8ad924d50020';
+
+        function addProduct() {
+    var productName = document.getElementById('productName').value;
+    var sellingPrice = document.getElementById('sellingPrice').value;
+    var category = document.getElementById('category').value;
+
+    var product = {
+        name: productName,
+        price: sellingPrice,
+        category: category
+    };
+
+    axios.post(apiEndpoint + '/products', product)
+        .then(function (response) {
+            var li = document.createElement('li');
+            li.textContent = productName + ' - ' + sellingPrice;
+            li.id = response.data._id;
+
+            var deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.onclick = function() {
+                deleteProduct(response.data._id, li);
+            };
+
+            li.appendChild(deleteButton);
+            document.getElementById(category).appendChild(li);
+
+            // Save the product to localStorage
+            var products = JSON.parse(localStorage.getItem('products')) || [];
+            products.push(product);
+            localStorage.setItem('products', JSON.stringify(products));
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+}
+window.onload = function() {
+    var products = JSON.parse(localStorage.getItem('products')) || [];
+    products.forEach(function(product) {
+        var li = document.createElement('li');
+        li.textContent = product.name + ' - ' + product.price;
+        li.id = product.id;
+
+        var deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = function() {
+            deleteProduct(product.id, li);
+        };
+
+        li.appendChild(deleteButton);
+        document.getElementById(product.category).appendChild(li);
+    });
+};
+
+function deleteProduct(id, li) {
+    axios.delete(apiEndpoint + '/products/' + id)
+        .then(function (response) {
+            li.parentNode.removeChild(li);
+
+            // Remove the product from localStorage
+            var products = JSON.parse(localStorage.getItem('products')) || [];
+            products = products.filter(function(product) {
+                return product.id !== id;
+            });
+            localStorage.setItem('products', JSON.stringify(products));
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+}
+
+    function deleteProduct(id, li) {
+        axios.delete(apiEndpoint + '/products/' + id)
+            .then(function (response) {
+                li.parentNode.removeChild(li);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+    </script>
+</body>
+</html>
