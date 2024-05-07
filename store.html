@@ -39,7 +39,7 @@
     <ul id="food"></ul>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js" integrity="sha512-PJa3oQSLWRB7wHZ7GQ/g+qyv6r4mbuhmiDb8BjSFZ8NZ2a42oTtAq5n0ucWAwcQDlikAtkub+tPVCw4np27WCg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        var apiEndpoint = 'https://crudcrud.com/api/7e2c2a13378047bb9e1808d88e33bc8a';
+        var apiEndpoint = 'https://crudcrud.com/api/8289c601027a47ddad440e9aa52c21da';
 
         function addProduct() {
     var productName = document.getElementById('productName').value;
@@ -77,19 +77,40 @@
             console.log(error);
         });
 }
+window.onload = function() {
+   
+    
 
+    //with this using get we can Fetch products from server even after relaoding ***very important
+    axios.get(apiEndpoint + '/products')
+        .then(function (response) {
+            var serverProducts = response.data;
+            serverProducts.forEach(function(product) {
+                var li = document.createElement('li');
+                li.textContent = product.name + ' - ' + product.price;
+                li.id = product._id;
+
+                var deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = function() {
+                    deleteProduct(product._id, li);
+                };
+
+                li.appendChild(deleteButton);
+                document.getElementById(product.category).appendChild(li);
+            });
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+};
 
 function deleteProduct(id, li) {
     axios.delete(apiEndpoint + '/products/' + id)
         .then(function (response) {
             li.parentNode.removeChild(li);
-            // this wil remove or delete  product from localStorage
+            
 
-            var products = JSON.parse(localStorage.getItem('products')) || [];
-            products = products.filter(function(product) {
-                return product.id !== id;
-            });
-            localStorage.setItem('products', JSON.stringify(products));
         })
         .catch(function (error) {
             console.log(error);
