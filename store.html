@@ -68,10 +68,7 @@
             li.appendChild(deleteButton);
             document.getElementById(category).appendChild(li);
 
-            // this wil Save the product to localStorage
-            var products = JSON.parse(localStorage.getItem('products')) || [];
-            products.push(product);
-            localStorage.setItem('products', JSON.stringify(products));
+            
         })
         .catch(function (error) {
             console.log(error);
@@ -81,7 +78,7 @@ window.onload = function() {
    
     
 
-    //with this using get we can Fetch products from server even after relaoding ***very important
+    // Fetch products from server
     axios.get(apiEndpoint + '/products')
         .then(function (response) {
             var serverProducts = response.data;
@@ -109,7 +106,7 @@ function deleteProduct(id, li) {
     axios.delete(apiEndpoint + '/products/' + id)
         .then(function (response) {
             li.parentNode.removeChild(li);
-            
+          
 
         })
         .catch(function (error) {
